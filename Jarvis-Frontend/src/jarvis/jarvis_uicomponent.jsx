@@ -24,6 +24,8 @@ export default function JarvisUI() {
   const streamRef      = useRef(null);
   const finalTextRef   = useRef("");
 
+  const socketRef = useRef(null);
+
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
@@ -44,6 +46,22 @@ export default function JarvisUI() {
     if (mediaRecRef.current && mediaRecRef.current.state !== "inactive") { try { mediaRecRef.current.stop(); } catch(_){} }
     if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
   };
+
+  useEffect(() => {
+    let mounted = true;
+    socketRef.current = new WebSocket("ws://localhost:8000/ws/chat/");
+    socketRef.current.onopen = () => {
+      console.log("Connexion WebSocket établie");
+      socketRef.current.send(JSON.stringify({ message: "Hello de JarvisUI!" }));  
+    };
+
+    return () => {
+      mounted = false;
+      socketRef.current?.close();}
+
+  },[]);
+
+
 
   const startRecording = useCallback(async () => {
     if (recording) return;

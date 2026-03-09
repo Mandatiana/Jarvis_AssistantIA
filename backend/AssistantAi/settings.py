@@ -51,6 +51,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
 ROOT_URLCONF = 'AssistantAi.urls'
 
 TEMPLATES = [
@@ -69,7 +74,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'AssistantAi.wsgi.application'
-ASGI_APPLICATION = 'AssistantAi.asgi.application'
+ASGI_APPLICATION = 'AssistantAi.asgi.application' # for channels
 
 
 # Database
