@@ -45,12 +45,14 @@ def nettoyer_donnees(dataset_brute):
 
     #separation action et commande
     for ligne in lignes:
+        if not ligne or ',' not in ligne: #s il n'y a pas de ligne ou la virgule n'est pas dans une ligne
+            continue
         action = ligne.split(",")
         clean_action = action[0].lower().strip()
         ponctuation = string.punctuation
         for symbole in ponctuation:
             clean_action = clean_action.replace(symbole, "")
-        print(clean_action)
+        print(clean_action, action[1])
 
 
 donnees_brute = charger_dataset()
