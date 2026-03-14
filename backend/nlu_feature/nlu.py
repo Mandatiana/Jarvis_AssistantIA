@@ -24,7 +24,7 @@ def nettoyer_donnees(brute):
     if brute is None:
         return 
     
-    dataset_entrainement = [] # ex: Sokafy chrome, ouvrir_chrome()
+    dataset_entrainement = [] # ex: couple [Sokafy chrome, ouvrir_chrome()]
     stop_words = ["mba", "indrindra", "koa", "ny", "azafady"]
     dictionnaire_mots = [] # liste de tous les mots uniques
 
