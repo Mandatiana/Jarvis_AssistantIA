@@ -37,6 +37,7 @@ print(X_train)
 def prompt_user():
     sentence = input("Que voulez vous faire? \n")
     clean_sentence = nettoyer_phrase(sentence)
+
     resultat = [m for m in clean_sentence if m in vocabulaire_globale]
     if len(resultat) == 0:
         print("Désolé, je ne connais aucun mot de ta phrase")
@@ -68,12 +69,12 @@ def calcul_des_distances(v_user, v_dataset):
     return distances
 
 
-def intrepreter_commande(distances, dataset, seuil=1.8):
+def intrepreter_commande(distances, dataset, seuil=1.5):
     
     index_du_minimale = np.argmin(distances)
     score = distances[index_du_minimale]
     if np.sum(vecteur_user) < 2:
-        print("Erreur, commande trop courte")
+        print("Erreur, commande non reconnue")
         return
 
 
