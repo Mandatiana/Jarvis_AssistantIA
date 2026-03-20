@@ -2,7 +2,6 @@ import math
 import numpy as np
 from preprocessing import nettoyer_phrase, nettoyer_dataset, charger_dataset
 
-K_value = 3 #Pour l'algo KNN
 
 #on appelle le resulat du chargement des données
 contenu = charger_dataset()
@@ -38,8 +37,12 @@ print(X_train)
 def prompt_user():
     sentence = input("Que voulez vous faire? \n")
     clean_sentence = nettoyer_phrase(sentence)
-    resultat = vectoriser(clean_sentence, vocabulaire_globale)
-    return resultat
+    resultat = [m for m in clean_sentence if m in vocabulaire_globale]
+    if len(resultat) == 0:
+        print("Désolé, je ne connais aucun mot de ta phrase")
+        return 
+    resultat_final = vectoriser(resultat, vocabulaire_globale)
+    return resultat_final
 
 
 vecteur_user = prompt_user()
@@ -65,16 +68,14 @@ def calcul_des_distances(v_user, v_dataset):
     return distances
 
 
-#Alefa anaty variable vaovao manjary tsy afaka antsoina
-tous_les_scores = calcul_des_distances(vecteur_user, X_train)
-
-
-
 def intrepreter_commande(distances, dataset, seuil=1.8):
+    
     index_du_minimale = np.argmin(distances)
     score = distances[index_du_minimale]
-    if np.sum(vecteur_user) == 0:
-        print("Je ne connais pas les mots")
+    if np.sum(vecteur_user) < 2:
+        print("Erreur, commande trop courte")
+        return
+
 
     commande_a_executer = dataset[index_du_minimale][1]
     if score <= seuil:
@@ -83,4 +84,10 @@ def intrepreter_commande(distances, dataset, seuil=1.8):
     else: 
         print("Commande introuvable, veuillez ressayer Monsieur ", score)
 
-intrepreter_commande(tous_les_scores, dataset_entrainement)
+#Alefa anaty variable vaovao manjary tsy afaka antsoina
+if vecteur_user is not None:
+    tous_les_scores = calcul_des_distances(vecteur_user, X_train)
+    intrepreter_commande(tous_les_scores, dataset_entrainement)
+else :
+    print("J'attends une commande valide")
+

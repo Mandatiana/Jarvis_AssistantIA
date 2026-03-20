@@ -6,6 +6,7 @@ OUVRE UNE PAGE WEB, ouvrir_chrome
 LANCE CHROME S'IL TE PLAÎT, ouvrir_chrome
 JE VEUX ALLER SUR GOOGLE, ouvrir_chrome
 DÉMARRE LE NAVIGATEUR CHROME, ouvrir_chrome
+FAIS MOI UNE RECHERCHE, ouvrir_chrome
 AFFICHE LE WEB, ouvrir_chrome
 PEUX-TU OUVRIR CHROME, ouvrir_chrome
 QUEL TEMPS FAIT-IL DEHORS, donner_meteo
@@ -14,6 +15,8 @@ EST-CE QU'IL VA PLEUVOIR, donner_meteo
 DONNE-MOI LA MÉTÉO À TOAMASINA, donner_meteo
 FAIS-MOI UN BULLETIN MÉTÉO, donner_meteo
 IL FAIT QUEL TEMPS AUJOURD'HUI, donner_meteo
+EST CE QUE TU PEUX LANCER UNE RECHERCHE, ouvrir_chrome
+PEUX TU FAIRE UNE RECHERCHE, ouvrir_chrome
 JE VEUX VOIR LA MÉTÉO, donner_meteo
 DIS-MOI S'IL FAIT BEAU, donner_meteo
 QUELLES SONT LES PRÉVISIONS MÉTÉO, donner_meteo
@@ -35,12 +38,17 @@ JE VEUX ÉCOUTER DE LA MUSIQUE, play_song
 ENVOIE UN MAIL À MAMAN, envoyer_mail
 ÉCRIS UN MAIL À MA MÈRE, envoyer_mail
 ENVOIE UN MESSAGE À MAMAN, envoyer_mail
+ENVOIE MESSAGE, envoyer_mail
 ADRESSE UN MAIL À MAMAN TOUT DE SUITE, envoyer_mail
 FAIS UN MAIL POUR DIRE QUE J'ARRIVE, envoyer_mail
 ENVOIE UN MAIL DE TEST, envoyer_mail
 RÉDIGE UN NOUVEAU MAIL, envoyer_mail
 ENVOIE UN MAIL À MAMAN POUR PRÉVENIR, envoyer_mail
 ENVOIE UN MESSAGE A MAMAN, envoyer_mail
+ENVOYER UN MAIL, envoyer_mail
+ENVOYER UN MESSAGE, envoyer_mail
+ENVOYER UN MAIL A MAMAN, envoyer_mail
+ENVOYER UN MESSAGE A MAMAN, envoyer_mail
 JE VEUX ENVOYER UN MAIL, envoyer_mail
 ENVOIE MESSAGE MAMAN DIRE QUE, envoyer_mail
 DIS A MAMAN QUE, envoyer_mail
