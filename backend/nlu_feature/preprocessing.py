@@ -18,54 +18,64 @@ def charger_dataset():
         print("Une erreur est survenue")   
 
 
-
-#Nettoyage des données 
-def nettoyer_donnees(brute):
-    if brute is None:
-        return 
+# Nettoyer une phrase entrée par l'utilisateur
+def nettoyer_phrase(sentence):
+    clean_sentence = sentence.lower().strip()
+    ponctuation = string.punctuation
+    for symbole in ponctuation:
+        clean_sentence = clean_sentence.replace(symbole, "")  
     
-    dataset_entrainement = [] # ex: couple [Sokafy chrome, ouvrir_chrome()]
-    stop_words = ["mba", "ny", "azafady", "kely", "hoe","dia", "fa",
-                  "ao", "amin", "an", "i","ve", "no", "re", "ve", 
-                "koa","izany", "ity", "ireo", "izao"]
-    dictionnaire_mots = [] # liste de tous les mots uniques
+    return clean_sentence.split(" ")
 
-    # Separation par lignes du dataset.csv
-    lignes = brute.split("\n")
-    for ligne in lignes: 
-        if not ligne or ',' not in ligne:
-            continue
-
-        # Separation de l'action et commande
-        ligne_nettoye = ligne.lower().strip()
+def nettoyer_dataset(brute):
+        if brute is None:
+            return 
         
-        # Apres division du texte    
-        colonnes = ligne_nettoye.split(",")
+        dataset_entrainement = [] # ex: couple [Sokafy chrome, ouvrir_chrome()]
+        stop_words = ["le", "la", "les", "un", "une", "des", "du", "de", "moi",
+                        "m", "l", "s", "t", "d", "n", "que", "pour", "dire"
+                        "peux", "tu", "me", "je", "s", "il", "te", "plait", "plaît"]
+        dictionnaire_mots = [] # liste de tous les mots uniques
 
-        ordre_nettoye = colonnes[0].lower().strip()
+        # Separation par lignes du dataset.csv
+        lignes = brute.strip().split("\n")
+        for ligne in lignes: 
+            if not ligne or ',' not in ligne:
+                continue
 
-        # Enlever ponctuation
-        ponctuation = string.punctuation
-        for symbole in ponctuation:
-            ordre_nettoye = ordre_nettoye.replace(symbole, "")
-        
-        # Transformation phrase en liste de mots
-        tokens = ordre_nettoye.split(" ")
+            # Separation de l'action et commande
+            ligne_nettoye = ligne.lower().strip()
+            
+            # Apres division du texte    
+            colonnes = ligne_nettoye.split(",")
 
-        # Mots inutile ou mots filrés
-        features = [mot for mot in tokens if mot not in stop_words]
+            ordre_nettoye = colonnes[0].lower().strip()
 
-        # Ajout 1 par 1 de tous les mots existants
-        dictionnaire_mots.extend(features)
-        dataset_entrainement.append([features, colonnes[1].strip()])
-        
-    # Creer une liste sans doublons
-    vocabulaire_globale = sorted(list(set(dictionnaire_mots)))
-    print("Nettoyage terminé")
-    print(vocabulaire_globale)
+            # Enlever ponctuation
+            ponctuation = string.punctuation
+            for symbole in ponctuation:
+                ordre_nettoye = ordre_nettoye.replace(symbole, "")
+            
+            # Transformation phrase en liste de mots
+            tokens = ordre_nettoye.split(" ")
 
-    # Retourner Intentions et liste de mots uniques 
-    return dataset_entrainement, dictionnaire_mots 
+            # Mots inutile ou mots filrés
+            features = [mot for mot in tokens if mot not in stop_words]
 
-dataset_brute = charger_dataset()
-nettoyer_donnees(dataset_brute)
+            # Ajout 1 par 1 de tous les mots existants
+            dictionnaire_mots.extend(features)
+            dataset_entrainement.append([features, colonnes[1].strip()])
+            
+        # Creer une liste sans doublons
+        vocabulaire_globale = sorted(list(set(dictionnaire_mots)))
+        print("Nettoyage terminé")
+        print(vocabulaire_globale)
+        print("Nb mots uniques: ", len(vocabulaire_globale))
+
+        # Retourner Intentions et liste de mots uniques 
+        return dataset_entrainement, vocabulaire_globale 
+
+
+if __name__ == "__main__":
+    dataset_brute = charger_dataset()
+    data, vocab = nettoyer_dataset(dataset_brute)
