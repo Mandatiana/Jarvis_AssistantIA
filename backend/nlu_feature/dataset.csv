@@ -1,78 +1,8 @@
 OUVRIR CHROME, ouvrir_chrome
-LANCE GOOGLE CHROME, ouvrir_chrome
-OUVRE LE NAVIGATEUR, ouvrir_chrome
-VA SUR INTERNET, ouvrir_chrome
-OUVRE UNE PAGE WEB, ouvrir_chrome
-LANCE CHROME S'IL TE PLAÎT, ouvrir_chrome
-JE VEUX ALLER SUR GOOGLE, ouvrir_chrome
-DÉMARRE LE NAVIGATEUR CHROME, ouvrir_chrome
-FAIS MOI UNE RECHERCHE, ouvrir_chrome
-AFFICHE LE WEB, ouvrir_chrome
-PEUX-TU OUVRIR CHROME, ouvrir_chrome
-QUEL TEMPS FAIT-IL DEHORS, donner_meteo
-QUELLE EST LA MÉTÉO AUJOURD'HUI, donner_meteo
-EST-CE QU'IL VA PLEUVOIR, donner_meteo
-DONNE-MOI LA MÉTÉO À TOAMASINA, donner_meteo
-FAIS-MOI UN BULLETIN MÉTÉO, donner_meteo
-IL FAIT QUEL TEMPS AUJOURD'HUI, donner_meteo
-EST CE QUE TU PEUX LANCER UNE RECHERCHE, ouvrir_chrome
-PEUX TU FAIRE UNE RECHERCHE, ouvrir_chrome
-JE VEUX VOIR LA MÉTÉO, donner_meteo
-DIS-MOI S'IL FAIT BEAU, donner_meteo
-QUELLES SONT LES PRÉVISIONS MÉTÉO, donner_meteo
-DONNE-MOI LA TEMPÉRATURE, donner_meteo
-LANCE MA MUSIQUE FAVORITE, play_song
-LANCE MA CHANSON PRÉFÉRÉE, play_song
-METS DE LA MUSIQUE SUR YOUTUBE, play_song
-JOUE MA CHANSON PRÉFÉRÉE, play_song
-JOUE MA MUSIQUE PREFEREE, play_song
-LANCE UNE PLAYLIST, play_song
-METS DE LA MUSIQUE S'IL TE PLAÎT, play_song
-LANCE MOI UN MORCEAU, play_song
-JOUE UN MORCEAU DE MUSIQUE, play_song
-PEUX-TU METTRE UNE CHANSON, play_song
-DÉMARRE MA MUSIQUE, play_song
-LANCE UNE MUSIQUE, play_song
-METS UN TITRE RÉCENT, play_song
-JE VEUX ÉCOUTER DE LA MUSIQUE, play_song
-ENVOIE UN MAIL À MAMAN, envoyer_mail
-ÉCRIS UN MAIL À MA MÈRE, envoyer_mail
-ENVOIE UN MESSAGE À MAMAN, envoyer_mail
-ENVOIE MESSAGE, envoyer_mail
-ADRESSE UN MAIL À MAMAN TOUT DE SUITE, envoyer_mail
-FAIS UN MAIL POUR DIRE QUE J'ARRIVE, envoyer_mail
-ENVOIE UN MAIL DE TEST, envoyer_mail
-RÉDIGE UN NOUVEAU MAIL, envoyer_mail
-ENVOIE UN MAIL À MAMAN POUR PRÉVENIR, envoyer_mail
-ENVOIE UN MESSAGE A MAMAN, envoyer_mail
-ENVOYER UN MAIL, envoyer_mail
-ENVOYER UN MESSAGE, envoyer_mail
-ENVOYER UN MAIL A MAMAN, envoyer_mail
-ENVOYER UN MESSAGE A MAMAN, envoyer_mail
-JE VEUX ENVOYER UN MAIL, envoyer_mail
-ENVOIE MESSAGE MAMAN DIRE QUE, envoyer_mail
-DIS A MAMAN QUE, envoyer_mail
-DIRE A MAMAN QUE, envoyer_mail
-ENVOIE MESSAGE MAMAN JE SUIS, envoyer_mail
-MESSAGERIE MAMAN PREVENIR QUE, envoyer_mail
-ENVOIE UN MESSAGE ÉLECTRONIQUE, envoyer_mail
-JE SUIS FATIGUÉ AUJOURD'HUI, mode_relax
-JE ME SENS VRAIMENT ÉPUISÉ, mode_relax
-JE SUIS TRÈS FATIGUÉ APRÈS LES COURS, mode_relax
-JE N'AI PLUS D'ÉNERGIE CE SOIR, mode_relax
-MON ESPRIT EST FATIGUÉ, mode_relax
-JE SUIS TRISTE À CAUSE DE L'EXAMEN, humeur_negative
-JE NE ME SENS PAS BIEN DU TOUT, humeur_negative
-MA JOURNÉE A ÉTÉ MAUVAISE, humeur_negative
-JE SUIS EN COLÈRE AUJOURD'HUI, humeur_negative
-RIEN NE VA PLUS AUJOURD'HUI, humeur_negative
-QUELLE HEURE EST-IL, afficher_heure
-DONNE-MOI L'HEURE S'IL TE PLAÎT, afficher_heure
-PEUX-TU ME DONNER L'HEURE, afficher_heure
-DIS-MOI L'HEURE QU'IL EST, afficher_heure
-IL EST QUELLE HEURE MAINTENANT, afficher_heure
-DONNE L'HEURE, afficher_heure
-QUELLE EST L'HEURE EXACTE, afficher_heure
-J'AI BESOIN DE L'HEURE, afficher_heure
-REGARDE L'HEURE POUR MOI, afficher_heure
-AFFICHE L'HEURE ACTUELLE, afficher_heure
+LANCER CHROME, ouvrir_chrome
+ALLER INTERNET, ouvrir_chrome
+LANCER NAVIGATEUR, ouvrir_chrome
+OUVRIR NAVIGATEUR, ouvrir_chrome
+OUVRIR WEB, ouvrir_chrome
+LANCER INTERNET, ouvrir_chrome
+JOUER MUSIQUE, play_song
