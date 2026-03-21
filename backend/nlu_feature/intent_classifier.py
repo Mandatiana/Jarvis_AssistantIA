@@ -69,11 +69,10 @@ def interpreter_commande():
     #Retirer indice du min
     indice_min = np.argmin(tous_les_scores)
     score = tous_les_scores[indice_min]
-    print(score)
     seuil = 1.5
-
+    print(f"score:{score} ,{dataset_entrainement[indice_min][1]}")
     if score <= seuil:
-        return dataset_entrainement[indice_min][1]
+        return (dataset_entrainement[indice_min][1], clean_sentence)
     else:
         return None
     

@@ -6,3 +6,15 @@ OUVRIR NAVIGATEUR, ouvrir_chrome
 OUVRIR WEB, ouvrir_chrome
 LANCER INTERNET, ouvrir_chrome
 JOUER MUSIQUE, play_song
+LANCER MUSIQUE, play_song
+LANCER MUSIQUE PREFEREE, play_song
+JOUER MUSIQUE, play_song
+LANCER CHANSON, play_song
+JOUER MORCEAU, play_song
+LANCER MORCEAU, play_song
+METTRE SON, play_song
+ECOUTER CHANSON, play_song
+METTRE MORCEAU, play_song
+JOUER ARTISTE, play_song
+ECOUTER MUSIQUE, play_song
+LANCER PLAYLIST, play_song
