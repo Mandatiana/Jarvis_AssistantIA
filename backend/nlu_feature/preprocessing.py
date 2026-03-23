@@ -32,9 +32,9 @@ def nettoyer_dataset(brute):
             return 
         
         dataset_entrainement = [] # ex: couple [Sokafy chrome, ouvrir_chrome()]
-        stop_words = ["le", "la", "les", "un", "une", "des", "du", "de", "moi",
-                        "m", "l", "s", "t", "d", "n", "que", "pour", "dire"
-                        "peux", "tu", "me", "je", "s", "il", "te", "plait", "plaît"]
+        stop_words = ["est", "ce","que", "tu", "peux", "pourrais","s'il","te", "plait","je", "voudrais","j'aimerais","veux",
+                       "le", "la","les","l'","un","une","des","de","du","à","pour","au","mon","ma","mes","faire"
+                      ]
         dictionnaire_mots = [] # liste de tous les mots uniques
 
         # Separation par lignes du dataset.csv
@@ -74,7 +74,6 @@ def nettoyer_dataset(brute):
 
         # Retourner Intentions et liste de mots uniques 
         return dataset_entrainement, vocabulaire_globale 
-
 
 if __name__ == "__main__":
     dataset_brute = charger_dataset()
