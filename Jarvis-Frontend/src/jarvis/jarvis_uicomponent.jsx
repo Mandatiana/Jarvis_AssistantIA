@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Mic, MicOff, Camera, MessageSquare, Send, X, Download, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import ChatTabs from "./composant/ChatTabs";
+import Orb3D from "./composant/Orb3D";
 
 export default function JarvisUI() {
 
@@ -323,13 +324,8 @@ export default function JarvisUI() {
           </div>
 
           <div className="j-core-wrap">
-            <div className="j-orbit j-o1"/><div className="j-orbit j-o2"/><div className="j-orbit j-o3"/>
-            <div className="j-core">
-              {listening && !recording && <div className="j-listen-ring"/>}
-              {recording && <div className="j-rec-ring"/>}
-              <span className="j-core-sym">{recording ? "⬤" : listening ? "◉" : "⬡"}</span>
-            </div>
-          </div>
+            <Orb3D />
+         </div>
 
           <div className="j-title">J.A.R.V.I.S</div>
           <div className="j-subtitle">Intelligence artificielle avancée</div>
