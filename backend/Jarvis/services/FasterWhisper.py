@@ -115,6 +115,14 @@ class TranscribeHandler(FileSystemEventHandler):
             except Exception as e:
                 print("Erreur écriture json:", repr(e))
 
+            # supprimer le fichier audio original après transcription réussie
+            try:
+                if os.path.exists(path):
+                    os.remove(path)
+                    print("Fichier audio original supprimé:", path)
+            except Exception as e:
+                print("Erreur suppression fichier audio original:", repr(e))
+
             # cleanup temporary converted wav
             if work_path != path and os.path.exists(work_path):
                 try:
