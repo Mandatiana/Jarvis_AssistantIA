@@ -1,4 +1,25 @@
 OUVRIR CHROME, ouvrir_chrome
+<<<<<<< Updated upstream
+LANCER CHROME, ouvrir_chrome
+ALLER INTERNET, ouvrir_chrome
+LANCER NAVIGATEUR, ouvrir_chrome
+OUVRIR NAVIGATEUR, ouvrir_chrome
+OUVRIR WEB, ouvrir_chrome
+LANCER INTERNET, ouvrir_chrome
+JOUER MUSIQUE, play_song
+LANCER MUSIQUE, play_song
+LANCER MUSIQUE PREFEREE, play_song
+JOUER MUSIQUE, play_song
+LANCER CHANSON, play_song
+JOUER MORCEAU, play_song
+LANCER MORCEAU, play_song
+METTRE SON, play_song
+ECOUTER CHANSON, play_song
+METTRE MORCEAU, play_song
+JOUER ARTISTE, play_song
+ECOUTER MUSIQUE, play_song
+LANCER PLAYLIST, play_song
+=======
 LANCE GOOGLE CHROME, ouvrir_chrome
 OUVRE LE NAVIGATEUR, ouvrir_chrome
 VA SUR INTERNET, ouvrir_chrome
@@ -76,3 +97,4 @@ QUELLE EST L'HEURE EXACTE, afficher_heure
 J'AI BESOIN DE L'HEURE, afficher_heure
 REGARDE L'HEURE POUR MOI, afficher_heure
 AFFICHE L'HEURE ACTUELLE, afficher_heure
+>>>>>>> Stashed changes
