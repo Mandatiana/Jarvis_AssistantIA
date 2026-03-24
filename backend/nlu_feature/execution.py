@@ -1,7 +1,6 @@
 import os 
 import webbrowser
 import urllib.parse
-from youtubesearchpython import VideosSearch
 
 from intent_classifier import interpreter_commande
 def executer_commande(prediction, phrase_user):
