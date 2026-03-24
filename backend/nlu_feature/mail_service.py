@@ -1,11 +1,15 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def envoyer_mail(destinaire_email, corps_message):
-    # --- CONFIGURATION FINALE SENDGRID ---
+
     username = "apikey"  # On ne change jamais ce mot
-    password = "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"
+    password = os.getenv("KEY_MAIL")
 
     message = MIMEMultipart()
     message["From"] = "aaronrmjk@gmail.com" # Ton adresse vérifiée
