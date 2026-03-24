@@ -50,11 +50,16 @@ class TranscribeHandler(FileSystemEventHandler):
     STABLE_CHECK_INTERVAL = 0.2
     STABLE_TIMEOUT = 15
     PROCESSING_TIMEOUT = 60
+    
+    # ⚡ NOUVEAU: Fichiers globaux à écraser
+    PROMPT_FILE = "prompt.txt"
+    TEXT_FILE = "text.json"
 
     def __init__(self, model):
         super().__init__()
         self.model = model
         self.processing = set()  # Évite les doublons de traitement
+        self.audio_dir = None
 
     def _is_file_stable(self, path):
         """Vérifie que le fichier est complètement écrit."""
@@ -137,8 +142,8 @@ class TranscribeHandler(FileSystemEventHandler):
             print(f"✅ Transcription terminée ({elapsed:.2f}s)")
             print(f"📝 Texte: {text[:150]}...")
             
-            # Sauvegarder les résultats
-            self._save_results(path, text, info)
+            # ⚡ NOUVEAU: Écraser les fichiers globaux
+            self._save_global_results(path, text, info)
             
             # Supprimer le fichier source
             self._cleanup_files(path, temp_wav)
@@ -151,39 +156,39 @@ class TranscribeHandler(FileSystemEventHandler):
                 except:
                     pass
 
-    def _save_results(self, original_path, text, info):
-        """Sauvegarde les résultats de transcription."""
-        out_dir = os.path.dirname(original_path)
-        base = Path(original_path).stem
+    def _save_global_results(self, original_path, text, info):
+        """⚡ NOUVEAU: Écraser les fichiers globaux prompt.txt et text.json"""
+        if not self.audio_dir:
+            self.audio_dir = os.path.dirname(original_path)
         
-        txt_path = os.path.join(out_dir, f"{base}.txt")
-        json_path = os.path.join(out_dir, f"{base}.json")
+        prompt_path = os.path.join(self.audio_dir, self.PROMPT_FILE)
+        text_path = os.path.join(self.audio_dir, self.TEXT_FILE)
         
-        # Fichier texte
+        # ⚡ ÉCRASER prompt.txt (texte brut)
         try:
-            with open(txt_path, "w", encoding="utf-8") as tf:
-                tf.write(text)
-            print(f"💾 Texte sauvegardé: {Path(txt_path).name}")
+            with open(prompt_path, "w", encoding="utf-8") as f:
+                f.write(text)
+            print(f"💾 {self.PROMPT_FILE} écrasé ({len(text)} caractères)")
         except Exception as e:
-            print(f"⚠ Erreur écriture txt: {repr(e)}")
+            print(f"⚠ Erreur écriture {self.PROMPT_FILE}: {repr(e)}")
             return
         
-        # Métadonnées JSON
+        # ⚡ ÉCRASER text.json (métadonnées)
         metadata = {
             "audio_file": Path(original_path).name,
-            "transcript_file": Path(txt_path).name,
             "text": text,
             "language": getattr(info, "language", "fr"),
             "language_probability": float(getattr(info, "language_probability", 0.0)),
-            "timestamp": int(time.time())
+            "timestamp": int(time.time()),
+            "duration_seconds": round(time.time() - int(time.time()), 2)
         }
         
         try:
-            with open(json_path, "w", encoding="utf-8") as jf:
-                json.dump(metadata, jf, ensure_ascii=False, indent=2)
-            print(f"💾 Métadonnées sauvegardées: {Path(json_path).name}")
+            with open(text_path, "w", encoding="utf-8") as f:
+                json.dump(metadata, f, ensure_ascii=False, indent=2)
+            print(f"💾 {self.TEXT_FILE} écrasé")
         except Exception as e:
-            print(f"⚠ Erreur écriture json: {repr(e)}")
+            print(f"⚠ Erreur écriture {self.TEXT_FILE}: {repr(e)}")
 
     def _cleanup_files(self, original_path, temp_wav):
         """Supprime les fichiers temporaires et originaux."""

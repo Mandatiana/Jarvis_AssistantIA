@@ -177,10 +177,14 @@ class AudioRecordingConsumer(AsyncWebsocketConsumer):
             }))
 
     async def _poll_transcript(self, base_name, audio_filename, timeout=60):
-        """Polling optimisé pour les transcripts produits par FasterWhisper.py"""
-        json_path = self.audio_dir / f"{base_name}.json"
-        txt_path = self.audio_dir / f"{base_name}.txt"
+        """Polling optimisé — lit les fichiers globaux prompt.txt et text.json"""
+        
+        # ⚡ Lire les fichiers globaux (pas spécifiques au fichier)
+        prompt_path = self.audio_dir / "prompt.txt"
+        json_path = self.audio_dir / "text.json"
+        
         start_time = time.time()
+        last_timestamp = 0  # Tracker le timestamp pour détecter les mises à jour
         
         try:
             while time.time() - start_time < timeout:
@@ -190,39 +194,45 @@ class AudioRecordingConsumer(AsyncWebsocketConsumer):
                         with open(json_path, 'r', encoding='utf-8') as f:
                             meta = json.load(f)
                         
-                        await self.send(text_data=json.dumps({
-                            'type': 'final_transcript',
-                            'audio_file': audio_filename,
-                            'text': meta.get('text', ''),
-                            'language': meta.get('language', 'fr'),
-                            'timestamp': meta.get('timestamp')
-                        }))
-                        print(f"✅ Transcript reçu: {base_name}")
-                        self.processed_files.add(base_name)
-                        return
+                        # ⚡ Vérifier si c'est une nouvelle transcription (timestamp différent)
+                        current_timestamp = meta.get('timestamp', 0)
+                        if current_timestamp > last_timestamp:
+                            last_timestamp = current_timestamp
+                            
+                            await self.send(text_data=json.dumps({
+                                'type': 'final_transcript',
+                                'audio_file': audio_filename,
+                                'text': meta.get('text', ''),
+                                'language': meta.get('language', 'fr'),
+                                'timestamp': meta.get('timestamp')
+                            }))
+                            print(f"✅ Transcript reçu: {audio_filename}")
+                            self.processed_files.add(base_name)
+                            return
                     except json.JSONDecodeError:
                         pass
                 
                 # Fallback sur le fichier texte
-                if txt_path.exists():
+                if prompt_path.exists():
                     try:
-                        with open(txt_path, 'r', encoding='utf-8') as f:
+                        with open(prompt_path, 'r', encoding='utf-8') as f:
                             text = f.read().strip()
                         
-                        await self.send(text_data=json.dumps({
-                            'type': 'final_transcript',
-                            'audio_file': audio_filename,
-                            'text': text
-                        }))
-                        print(f"✅ Transcript reçu (txt): {base_name}")
-                        self.processed_files.add(base_name)
-                        return
+                        if text:  # Seulement si le texte n'est pas vide
+                            await self.send(text_data=json.dumps({
+                                'type': 'final_transcript',
+                                'audio_file': audio_filename,
+                                'text': text
+                            }))
+                            print(f"✅ Transcript reçu (txt): {audio_filename}")
+                            self.processed_files.add(base_name)
+                            return
                     except Exception:
                         pass
                 
                 # Attendre avant la prochaine vérification
                 await asyncio.sleep(self.POLL_INTERVAL)
-        
+            
         except asyncio.CancelledError:
             print(f"⏸ Polling annulé pour {base_name}")
             return
@@ -234,7 +244,6 @@ class AudioRecordingConsumer(AsyncWebsocketConsumer):
             'audio_file': audio_filename,
             'message': 'Transcription non terminée dans le délai imparti'
         }))
-
 
 # Alias pour compatibilité
 ChatConsumer = AudioRecordingConsumer
