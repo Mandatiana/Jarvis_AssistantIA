@@ -29,7 +29,7 @@ def main():
             else:
 
                 #Le KNN n'as pas compris
-                print("Laisser moi reflechir deux secondes...")
+                print("Laissez-moi reflechir deux secondes...")
                 
                 if ask_jarvis:
                      
