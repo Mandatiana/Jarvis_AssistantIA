@@ -1,9 +1,19 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Mic, MicOff, Camera, MessageSquare, Send, X, Download, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import ChatTabs from "./composant/ChatTabs";
+import Orb3D from "./composant/Orb3D";
+import AudioRecorder from 'audio-recorder-polyfill';
+
+// ⚡ IMPORTANT: Installer le polyfill AVANT son utilisation
+if (!window.MediaRecorder) {
+  window.MediaRecorder = AudioRecorder;
+}
+
+// ⚡ Initialiser le polyfill avec les dépendances Web Audio
+AudioRecorder.NotSupportedError = Error;
+AudioRecorder.encoder = '/encoderWorker.js'; // ← À télécharger depuis npm package
 
 export default function JarvisUI() {
-
   const [listening,  setListening]  = useState(true);
   const [chatOpen,   setChatOpen]   = useState(false);
   const [recording,  setRecording]  = useState(false);
@@ -23,8 +33,14 @@ export default function JarvisUI() {
   const audioChunksRef = useRef([]);
   const streamRef      = useRef(null);
   const finalTextRef   = useRef("");
-
   const socketRef = useRef(null);
+  const sendQueueRef = useRef([]);
+  const reconnectTimerRef = useRef(null);
+  const recordingStartTimeRef = useRef(null);
+
+  // ⚡ Utiliser WebM pour meilleure compatibilité (polyfill convertira en WAV)
+  const AUDIO_MIME_TYPE = "audio/webm";
+  const AUDIO_EXTENSION = "wav"; // On le serve comme WAV au backend
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
@@ -42,46 +58,123 @@ export default function JarvisUI() {
   const nowLabel = () => new Date().toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
 
   const stopEverything = () => {
-    if (recognitionRef.current) { try { recognitionRef.current.abort(); } catch(_){} recognitionRef.current = null; }
-    if (mediaRecRef.current && mediaRecRef.current.state !== "inactive") { try { mediaRecRef.current.stop(); } catch(_){} }
-    if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+    if (recognitionRef.current) { 
+      try { recognitionRef.current.abort(); } 
+      catch(_){} 
+      recognitionRef.current = null; 
+    }
+    if (mediaRecRef.current?.state !== "inactive") { 
+      try { mediaRecRef.current.stop(); } 
+      catch(_){} 
+    }
+    if (streamRef.current) { 
+      streamRef.current.getTracks().forEach(t => t.stop()); 
+      streamRef.current = null; 
+    }
   };
 
+  // ⚡ WebSocket optimisé avec reconnexion progressive
   useEffect(() => {
+    const url = "ws://localhost:8000/ws/chat/";
+    let reconnectCount = 0;
+    const maxReconnectDelay = 5000;
     
-    if(!socketRef.current){
-      socketRef.current = new WebSocket("ws://localhost:8000/ws/chat/");
-      socketRef.current.onopen = (event) => {
-        console.log("Connexion WebSocket établie");
-        socketRef.current.send(JSON.stringify({ message: "Hello de JarvisUI!" }));  
-      };
-      socketRef.current.onmessage = (event) => {  
-        console.log('Le client a reçu un message:', event.data);
-      }
+    function connect() {
+      const ws = new WebSocket(url);
 
+      ws.onopen = () => {
+        console.log("✅ WebSocket établie");
+        reconnectCount = 0;
+        
+        // Flush queue
+        while (sendQueueRef.current.length && ws.readyState === WebSocket.OPEN) {
+          const p = sendQueueRef.current.shift();
+          try {
+            if (p instanceof ArrayBuffer) ws.send(p);
+            else ws.send(JSON.stringify(p));
+          } catch(_) { 
+            sendQueueRef.current.unshift(p); 
+            break; 
+          }
+        }
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          
+          if (msg.type === 'final_transcript') {
+            setTranscript(msg.text || "");
+            setInput(msg.text || "");
+            setRecStatus("idle");
+            addMsg("ai", `📝 Transcription reçue (${msg.audio_file})`);
+            console.log("✅ Transcript final:", msg.text?.substring(0, 100));
+          } 
+          else if (msg.type === 'interim_transcript') {
+            setTranscript(msg.text || "");
+          } 
+          else if (msg.type === 'transcript_timeout') {
+            setRecStatus("idle");
+            addMsg("ai", "⏱ Timeout: transcription non terminée");
+          } 
+          else if (msg.type === 'error') {
+            addMsg("ai", `❌ Erreur: ${msg.message}`);
+          }
+        } catch (e) {
+          console.error("Parse error:", e);
+        }
+      };
+
+      ws.onerror = (e) => {
+        console.error("❌ WebSocket error", e);
+        try { ws.close(); } catch(_) {}
+      };
+
+      ws.onclose = () => {
+        console.log("⚠️ WebSocket fermée, reconnexion...");
+        const delay = Math.min(1000 * Math.pow(1.5, reconnectCount), maxReconnectDelay);
+        reconnectCount++;
+        
+        if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = setTimeout(() => {
+          if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
+            connect();
+          }
+        }, delay);
+      };
+
+      socketRef.current = ws;
+      return ws;
     }
 
+    if (!socketRef.current) connect();
+
     return () => {
-      if(socketRef.current){
-        socketRef.current.close();
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      if (socketRef.current) {
+        try { socketRef.current.close(); } catch(_) {}
         socketRef.current = null;
-        console.log("Socket fermé");
       }
     };
-
-  },[]);
-
-
+  }, []);
 
   const startRecording = useCallback(async () => {
     if (recording) return;
+    
     let stream;
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
       streamRef.current = stream;
-    } catch(_) {
+    } catch(err) {
       setRecStatus("idle");
-      addMsg("ai", "⚠ Accès au microphone refusé.");
+      addMsg("ai", `⚠️ Erreur microphone: ${err.message}`);
+      console.error("Microphone access error:", err);
       return;
     }
 
@@ -90,79 +183,174 @@ export default function JarvisUI() {
     setTranscript("");
     finalTextRef.current = "";
     audioChunksRef.current = [];
+    recordingStartTimeRef.current = Date.now();
 
-    // Choisir le meilleur codec disponible
-    const mimeType = ["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus","audio/ogg"]
-      .find(t => MediaRecorder.isTypeSupported(t)) || "";
+    try {
+      console.log(`🎤 Démarrage enregistrement WebM (polyfill WAV)`);
 
-    const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-    mediaRecRef.current = mr;
+      // ⚡ Utiliser WebM — le polyfill convertira en WAV si nécessaire
+      const mr = new MediaRecorder(stream, { mimeType: AUDIO_MIME_TYPE });
+      mediaRecRef.current = mr;
 
-    mr.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data); };
+      // 📦 Accumule chunks localement
+      mr.ondataavailable = (e) => {
+        if (e.data?.size > 0) {
+          audioChunksRef.current.push(e.data);
+          console.log(`📦 Chunk audio reçu (${e.data.size} bytes, type: ${e.data.type})`);
+        }
+      };
 
-    mr.onstop = () => {
-      // Type propre sans paramètres de codec pour le Blob
-      const cleanType = mimeType ? mimeType.split(";")[0] : "audio/webm";
-      const ext = cleanType.includes("ogg") ? "ogg" : "webm";
-      const blob = new Blob(audioChunksRef.current, { type: cleanType });
-      const url  = URL.createObjectURL(blob);
+      mr.onstop = async () => {
+        setRecStatus("processing");
+        console.log(`⏹️ Enregistrement arrêté, ${audioChunksRef.current.length} chunks`);
+        
+        const blob = new Blob(audioChunksRef.current, { type: AUDIO_MIME_TYPE });
+        const url = URL.createObjectURL(blob);
+        const duration = (Date.now() - recordingStartTimeRef.current) / 1000;
 
-      const capturedText = finalTextRef.current.trim() || "(aucune transcription)";
-      setVoiceLogs(prev => [{
-        id: Date.now(), label: nowLabel(), url, ext,
-        text: capturedText, expanded: true,
-      }, ...prev]);
+        try {
+          // ⚡ Conversion directe en ArrayBuffer
+          const ab = await blob.arrayBuffer();
+          const filename = `recording_${Date.now()}.${AUDIO_EXTENSION}`;
+          const header = JSON.stringify({ 
+            type: 'full_recording', 
+            filename,
+            mimeType: blob.type 
+          });
+          const headerBytes = new TextEncoder().encode(header);
+          
+          // Construire le packet une seule fois
+          const packet = new Uint8Array(4 + headerBytes.length + ab.byteLength);
+          const dv = new DataView(packet.buffer);
+          dv.setUint32(0, headerBytes.length, true);
+          packet.set(headerBytes, 4);
+          packet.set(new Uint8Array(ab), 4 + headerBytes.length);
 
+          const payload = packet.buffer;
+          
+          // Envoyer immédiatement
+          if (socketRef.current?.readyState === WebSocket.OPEN) {
+            socketRef.current.send(payload);
+            console.log(`📤 Enregistrement envoyé (${(payload.byteLength / 1024).toFixed(1)} KB, ${duration.toFixed(1)}s)`);
+          } else {
+            sendQueueRef.current.push(payload);
+            console.log(`📋 Enregistrement en queue (${(payload.byteLength / 1024).toFixed(1)} KB)`);
+          }
+        } catch (err) {
+          console.error("❌ Erreur envoi:", err);
+          setRecStatus("idle");
+          addMsg("ai", `❌ Erreur envoi: ${err.message}`);
+        }
+
+        // 📝 Logger localement immédiatement
+        const capturedText = finalTextRef.current.trim() || "(aucune transcription)";
+        setVoiceLogs(prev => [{
+          id: Date.now(),
+          label: nowLabel(),
+          url,
+          ext: AUDIO_EXTENSION,
+          text: capturedText,
+          expanded: true,
+          duration: duration.toFixed(1)
+        }, ...prev]);
+
+        stream.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      };
+
+      mr.onerror = (e) => {
+        console.error("❌ MediaRecorder error:", e.error);
+        setRecStatus("idle");
+        addMsg("ai", `❌ Erreur enregistrement: ${e.error}`);
+        
+        // Fallback: arrêter le stream
+        stream.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      };
+
+      // ⚡ Commencer l'enregistrement avec timeslice
+      mr.start(1000);
+
+    } catch (err) {
+      console.error("❌ Erreur initialisation MediaRecorder:", err);
+      setRecStatus("idle");
+      addMsg("ai", `❌ Erreur: ${err.message}`);
       stream.getTracks().forEach(t => t.stop());
       streamRef.current = null;
-      setRecStatus("idle");
-      setTranscript("");
-    };
+      setRecording(false);
+      return;
+    }
 
-    mr.start(100);
-
-    // Speech Recognition
+    // 🎤 Speech Recognition activée en parallèle (non bloquant)
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SR) {
       const recog = new SR();
       recog.lang = "fr-FR";
-      recog.continuous     = true;
+      recog.continuous = true;
       recog.interimResults = true;
 
       recog.onresult = e => {
         let interim = "";
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const t = e.results[i][0].transcript;
-          if (e.results[i].isFinal) finalTextRef.current += t + " ";
-          else interim = t;
+          if (e.results[i].isFinal) {
+            finalTextRef.current += t + " ";
+          } else {
+            interim = t;
+          }
         }
         setTranscript((finalTextRef.current + interim).trim());
         setInput(finalTextRef.current.trim());
       };
 
-      recog.onerror = () => {};
-      // Relancer automatiquement si Chrome coupe après ~60s
+      recog.onerror = (e) => {
+        console.warn("🔇 Speech Recognition error:", e.error);
+      };
+
       recog.onend = () => {
         if (mediaRecRef.current?.state === "recording") {
-          try { recog.start(); } catch(_){}
+          try { recog.start(); } catch(_) {}
         }
       };
-      try { recog.start(); } catch(_){}
+
+      try { 
+        recog.start(); 
+        console.log("🎤 Speech Recognition démarrée");
+      } catch(err) {
+        console.warn("⚠️ Speech Recognition erreur:", err);
+      }
       recognitionRef.current = recog;
     }
   }, [recording]);
 
   const stopRecording = useCallback(() => {
     if (!recording) return;
+    
+    console.log("⏹️ Arrêt enregistrement demandé");
     setRecording(false);
-    setRecStatus("processing");
-    if (recognitionRef.current) { try { recognitionRef.current.abort(); } catch(_){} recognitionRef.current = null; }
-    if (mediaRecRef.current?.state !== "inactive") mediaRecRef.current.stop();
+    
+    if (recognitionRef.current) { 
+      try { recognitionRef.current.abort(); } 
+      catch(_){} 
+      recognitionRef.current = null; 
+    }
+    
+    if (mediaRecRef.current && mediaRecRef.current.state !== "inactive") {
+      try {
+        mediaRecRef.current.stop();
+      } catch(err) {
+        console.error("❌ Erreur stop MediaRecorder:", err);
+        setRecStatus("idle");
+      }
+    } else {
+      console.warn("⚠️ MediaRecorder pas actif ou null");
+      setRecStatus("idle");
+    }
   }, [recording]);
 
   const toggleMic = useCallback(() => {
-    if (!recording) { setListening(true);  startRecording(); }
-    else            { setListening(false); stopRecording();  }
+    if (!recording) startRecording();
+    else stopRecording();
   }, [recording, startRecording, stopRecording]);
 
   const toggleChat = () => setChatOpen(v => !v);
@@ -172,13 +360,27 @@ export default function JarvisUI() {
     const txt = input.trim();
     if (!txt) return;
     addMsg("moi", txt);
-    setInput(""); setTranscript(""); finalTextRef.current = "";
-    setTimeout(() => addMsg("ai", "Traitement en cours : " + txt), 800);
+    setInput("");
+    setTranscript("");
+    finalTextRef.current = "";
   };
 
-  const deleteLog  = id => setVoiceLogs(prev => { const l = prev.find(x=>x.id===id); if(l) URL.revokeObjectURL(l.url); return prev.filter(x=>x.id!==id); });
-  const toggleExpand = id => setVoiceLogs(prev => prev.map(l => l.id===id ? {...l, expanded:!l.expanded} : l));
-  const downloadLog  = log => { const a=document.createElement("a"); a.href=log.url; a.download=`jarvis_${log.label.replace(/:/g,"-")}.${log.ext}`; a.click(); };
+  const deleteLog  = id => setVoiceLogs(prev => {
+    const log = prev.find(x => x.id === id);
+    if (log) URL.revokeObjectURL(log.url);
+    return prev.filter(x => x.id !== id);
+  });
+  
+  const toggleExpand = id => setVoiceLogs(prev => 
+    prev.map(l => l.id === id ? {...l, expanded: !l.expanded} : l)
+  );
+  
+  const downloadLog = log => {
+    const a = document.createElement("a");
+    a.href = log.url;
+    a.download = `jarvis_${log.label.replace(/:/g, "-")}.${log.ext}`;
+    a.click();
+  };
 
   return (
     <>
@@ -256,9 +458,7 @@ export default function JarvisUI() {
         .j-msg{padding:clamp(9px,1.1vh,13px) clamp(11px,1.1vw,15px);border-radius:11px;line-height:1.5;font-size:clamp(12px,1vw,14px);max-width:90%;word-break:break-word}
         .j-msg.ai{align-self:flex-start;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.14);color:#cbd5e1}
         .j-msg.moi{align-self:flex-end;background:rgba(37,99,235,.22);border:1px solid rgba(59,130,246,.22);color:#e2e8f0}
-        .j-msg-label{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:.14em;opacity:.45;margin-bottom:4px}
 
-        /* ── LOGS VOCAUX ── */
         .j-logs{flex:1;overflow-y:auto;padding:10px 10px 20px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:rgba(6,182,212,.18) transparent}
         .j-log{background:rgba(6,182,212,.04);border:1px solid rgba(6,182,212,.13);border-radius:10px;overflow:hidden;transition:border-color .2s}
         .j-log:hover{border-color:rgba(6,182,212,.28)}
@@ -273,7 +473,6 @@ export default function JarvisUI() {
 
         .j-log-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
 
-        /* Lecteur audio — styling complet pour Chrome/Firefox */
         .j-audio{
           width:100%;
           height:36px;
@@ -283,10 +482,6 @@ export default function JarvisUI() {
           border:1px solid rgba(6,182,212,.15);
           accent-color:#22d3ee;
         }
-        .j-audio::-webkit-media-controls-panel{background:rgba(0,15,25,.95);border-radius:8px}
-        .j-audio::-webkit-media-controls-play-button{background-color:rgba(6,182,212,.3);border-radius:50%}
-        .j-audio::-webkit-media-controls-current-time-display,
-        .j-audio::-webkit-media-controls-time-remaining-display{color:#22d3ee}
 
         .j-log-section-label{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:.12em;color:rgba(6,182,212,.35);text-transform:uppercase}
         .j-log-text{font-size:12px;color:rgba(203,213,225,.75);line-height:1.55;font-style:italic;background:rgba(6,182,212,.04);border:1px solid rgba(6,182,212,.1);border-radius:8px;padding:8px 10px}
@@ -300,7 +495,15 @@ export default function JarvisUI() {
         .j-input::placeholder{color:rgba(6,182,212,.28)}
         .j-send{width:clamp(36px,3.2vw,44px);height:clamp(36px,3.2vw,44px);border-radius:10px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(6,182,212,.48),rgba(6,182,212,.28));border:1px solid rgba(6,182,212,.38);color:#000;transition:all .2s}
         .j-send:hover{background:linear-gradient(135deg,#22d3ee,rgba(6,182,212,.65));box-shadow:0 0 18px rgba(6,182,212,.28)}
-
+        
+        .j-core-wrap{
+          width: clamp(340px, 50vw, 650px);
+          aspect-ratio: 1 / 1; /* TRÈS IMPORTANT */
+        }
+        .j-core-wrap{
+          transform: translateY(-40px); /* monte l’orb */
+        }
+        }
         @media(max-width:768px){
           .j-root{flex-direction:column}
           .j-left{flex:1;min-height:0}
@@ -312,7 +515,6 @@ export default function JarvisUI() {
       <div className="j-root">
         <div className="j-grid"/><div className="j-glow"/><div className="j-scan"/>
 
-        {/* ═══ GAUCHE ═══ */}
         <div className="j-left">
           <div className="j-corner tl"/><div className="j-corner tr"/>
           <div className="j-corner bl"/><div className="j-corner br"/>
@@ -323,12 +525,7 @@ export default function JarvisUI() {
           </div>
 
           <div className="j-core-wrap">
-            <div className="j-orbit j-o1"/><div className="j-orbit j-o2"/><div className="j-orbit j-o3"/>
-            <div className="j-core">
-              {listening && !recording && <div className="j-listen-ring"/>}
-              {recording && <div className="j-rec-ring"/>}
-              <span className="j-core-sym">{recording ? "⬤" : listening ? "◉" : "⬡"}</span>
-            </div>
+            <Orb3D />
           </div>
 
           <div className="j-title">J.A.R.V.I.S</div>
@@ -353,7 +550,6 @@ export default function JarvisUI() {
           </div>
         </div>
 
-        {/* ═══ DROITE ═══ */}
         <div className={`j-chat ${chatOpen?"":"closed"}`}>
           <div className="j-chat-header">
             <div className="j-chat-title">◈ JARVIS INTERFACE</div>

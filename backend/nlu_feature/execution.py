@@ -1,11 +1,6 @@
 import os 
 import webbrowser
 import urllib.parse
-from gerer_contact import charger_contact
-import smtplib
-from mail_service import envoyer_mail
-
-
 
 from intent_classifier import interpreter_commande
 def executer_commande(prediction, phrase_user):
