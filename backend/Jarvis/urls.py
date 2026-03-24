@@ -4,5 +4,8 @@ from . import views
 urlpatterns = [
     path('hello/', views.Hello),
     path('ask/', views.AskJarvis),
-    path('lire/', views.LireIA),   # ← ajoute uniquement cette ligne
+    path('lire/', views.LireIA),   
+    path('verifier/', views.VerifierIA),
+    path('vider/', views.Vider_ia),
+
 ]
