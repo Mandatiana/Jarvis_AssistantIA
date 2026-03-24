@@ -389,7 +389,15 @@ export default function JarvisUI() {
         .j-input::placeholder{color:rgba(6,182,212,.28)}
         .j-send{width:clamp(36px,3.2vw,44px);height:clamp(36px,3.2vw,44px);border-radius:10px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(6,182,212,.48),rgba(6,182,212,.28));border:1px solid rgba(6,182,212,.38);color:#000;transition:all .2s}
         .j-send:hover{background:linear-gradient(135deg,#22d3ee,rgba(6,182,212,.65));box-shadow:0 0 18px rgba(6,182,212,.28)}
-
+        
+        .j-core-wrap{
+          width: clamp(340px, 50vw, 650px);
+          aspect-ratio: 1 / 1; /* TRÈS IMPORTANT */
+        }
+        .j-core-wrap{
+          transform: translateY(-40px); /* monte l’orb */
+        }
+        }
         @media(max-width:768px){
           .j-root{flex-direction:column}
           .j-left{flex:1;min-height:0}

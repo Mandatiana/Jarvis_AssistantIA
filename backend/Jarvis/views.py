@@ -30,3 +30,21 @@ def LireIA(request):
     )
 
     return JsonResponse({"response": state.derniere_reponse_ia})
+
+
+@csrf_exempt  
+def VerifierIA(request):
+    with open(IA_TXT_PATH, "rb") as f:
+        raw = f.read()
+    if raw.startswith(b'\xff\xfe') or raw.startswith(b'\xfe\xff'):
+        texte = raw.decode("utf-16")
+    else:
+        texte = raw.decode("utf-8")
+    texte = texte.strip()
+    return JsonResponse({"has_content": bool(texte), "response": texte})
+
+@csrf_exempt
+def Vider_ia(request):
+    with open(IA_TXT_PATH, "w", encoding="utf-8") as f:
+        f.write("")
+    return JsonResponse({"status": "cleared"})
