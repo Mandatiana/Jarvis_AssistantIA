@@ -1,7 +1,7 @@
 import os 
 import webbrowser
 import urllib.parse
-from youtubesearchpython import VideosSearch
+
 
 from intent_classifier import interpreter_commande
 def executer_commande(prediction, phrase_user):
@@ -24,9 +24,3 @@ def executer_commande(prediction, phrase_user):
         else:
             print("Quel musique veux tu ecouter? ")
 
-#Ne s'execute que lorsque je lance ce fichier uniquement meme si ce fichier est importé ailleurs
-if __name__ == "__main__":
-    resulat  = interpreter_commande()
-    resulat_knn, phrase_user = resulat
-    if resulat is not None:
-        executer_commande(resulat_knn, phrase_user)

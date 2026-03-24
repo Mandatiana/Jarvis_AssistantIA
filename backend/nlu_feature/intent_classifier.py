@@ -1,7 +1,8 @@
 import math
+import os
 import numpy as np
 from preprocessing import nettoyer_phrase, nettoyer_dataset, charger_dataset
-
+chemain_ai = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'ai_service'))
 
 #on appelle le resulat du chargement des données
 contenu = charger_dataset()
@@ -52,13 +53,15 @@ def calcul_des_distances(v_user, v_dataset):
 def interpreter_commande():
 
     #Demander input
-    sentence = input("Que voulez vous faire Monsieur ?\n")
+    sentence = input("Que voulez vous faire aujoud'hui Monsieur ?\n")
     clean_sentence = nettoyer_phrase(sentence)
 
     #Verifier si on connait les mots
     resultat = [m for m in clean_sentence if m in vocabulaire_globale]
+    
     if len(resultat) == 0:
-        return None
+        #on renvoie quand meme la phrase pour l'envoyer a l api
+        return (None,sentence) 
     
     #Vectorisation
     vecteur_user = vectoriser(resultat, vocabulaire_globale)
@@ -72,7 +75,9 @@ def interpreter_commande():
     seuil = 1.5
     print(f"score:{score} ,{dataset_entrainement[indice_min][1]}")
     if score <= seuil:
+
+        #on retourne l'intention de l'user et sa phrase nettoyé pour l'utiliser dans execution.py
         return (dataset_entrainement[indice_min][1], clean_sentence)
     else:
-        return None
+        return (None,sentence)
     

@@ -18,6 +18,26 @@ def charger_dataset():
         print("Une erreur est survenue")   
 
 
+# Gérer les synonymes
+synonymes = {
+    "son": "musique",
+    "chanson": "musique",
+    "titre": "musique",
+    "morceau": "musique",
+    "google": "chrome",
+    "maman": "mere"
+}
+
+
+def gerer_synonyme(phrase):
+    mots = phrase.split()
+    phrase_corrige = []
+    for m in mots:
+        new = synonymes.get(m,m)
+        phrase_corrige.append(new)
+    return new.join(" ").join(phrase_corrige)
+
+
 # Nettoyer une phrase entrée par l'utilisateur
 def nettoyer_phrase(sentence):
     clean_sentence = sentence.lower().strip()
