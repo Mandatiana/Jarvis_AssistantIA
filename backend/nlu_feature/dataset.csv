@@ -19,3 +19,11 @@ JOUER ARTISTE, play_song
 ECOUTER MUSIQUE, play_song
 LANCER PLAYLIST, play_song
 DONNER HEURE, play_song
+ENVOYER MAIL, envoyer_mail
+ENVOYER MESSAGE, envoyer_mail
+ECRIRE MAIL, envoyer_mail
+ECRIRE MESSAGE, envoyer_mail
+CONTACTER MAIL, envoyer_mail
+MAIL, envoyer_mail
+REDIGER MESSAGE, envoyer_mail
+REDIGER MAIL, envoyer_mail

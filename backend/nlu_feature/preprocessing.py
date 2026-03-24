@@ -53,7 +53,7 @@ def nettoyer_dataset(brute):
         
         dataset_entrainement = [] # ex: couple [Sokafy chrome, ouvrir_chrome()]
         stop_words = ["est", "ce","que", "tu", "peux", "pourrais","s'il","te", "plait","je", "voudrais","j'aimerais","veux",
-                       "le", "la","les","l'","un","une","des","de","du","à","pour","au","mon","ma","mes","faire"
+                       "le", "la","les","l'","un","une","des","de","du","pour","au","mon","ma","mes","faire"
                       ]
         dictionnaire_mots = [] # liste de tous les mots uniques
 

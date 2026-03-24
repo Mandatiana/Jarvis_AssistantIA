@@ -61,14 +61,15 @@ def interpreter_commande():
     resultat = [m for m in clean_sentence if m in vocabulaire_globale]
 
     #Mots sur l'identité de JARVIS
-    mots_identite = ["qui","es","tu","presentes","vous","presenter","presentez","toi","nom","presente","concevoir","concue","identite","presentation","ton nom","c'est quoi ton identité"]
+    mots_identite = ["qui","tu","presentes","creer","crée","conçue","fabriquer","developper","vous","presenter","presentez","toi","nom","presente","concevoir","concue","identite","presentation","ton nom","c'est quoi ton identité"]
     
     if sum(1 for m in clean_sentence if m in mots_identite) >= 2:
         liste_presentation = [
 
-            "Je suis JARVIS, un assistant IA crée par 6 étudiants en troisième annéé d'informatique",
+            "Je suis JARVIS, un assistant IA créé par 6 étudiants en troisième annéé d'informatique à l'ISPM",
             "Bonjour, c'est JARVIS, votre système intelligent capable de tout faire",
-            "Mon nom est JARVIS, une intelligence artificielle qui peux vous assister dans vos taches quotidiens"
+            "Mon nom est JARVIS, une intelligence artificielle qui peux vous assister dans vos taches quotidiennes",
+            "C'est JARVIS, votre majordome virtuel qui répond à tous vos besoins"
         ]
 
         presentation_random = random.choice(liste_presentation)        
