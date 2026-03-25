@@ -58,8 +58,11 @@ def interpreter_commande(commande:str = None):
     resultat = [m for m in clean_sentence if m in vocabulaire_globale]
 
     #Mots sur l'identité de JARVIS
-    mots_identite = ["qui","tu","présente","estu","creer","crée","nom","ton","conçue","appelle","appelles","fabriquer","developper","vous","presenter","presentez","toi","nom","presente","concevoir","concue","identite","presentation","ton nom","c'est quoi ton identité"]
-    
+    mots_identite = ["qui", "tu", "es", "estu", "nom", "appelle", "appelles", 
+    "presente", "presentez", "presenter", "presentation", 
+    "identite", "cree", "creer", "concue", "concu", 
+    "fabriquer", "developper", "toi", "vous", "jarvis"]
+
     if sum(1 for m in clean_sentence if m in mots_identite) >= 2:
         return ("presentation_jarvis", clean_sentence) # Ajoute un return pour arrêter la fonction ici
 
