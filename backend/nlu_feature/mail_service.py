@@ -10,7 +10,6 @@ def envoyer_mail(destinaire_email, corps_message):
 
     username = "apikey"  # On ne change jamais ce mot
     password = os.getenv("KEY_MAIL")
-    print(password)
 
     message = MIMEMultipart()
     message["From"] = "aaronrmjk@gmail.com" # Ton adresse vérifiée
