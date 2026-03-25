@@ -5,7 +5,7 @@ from preprocessing import nettoyer_phrase
 from intent_classifier import interpreter_commande
 from execution import executer_commande
 from preprocessing import nettoyer_phrase
-
+from audio_service import jouer_audio_aleatoire
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 chemin_services = BASE_DIR / "Jarvis" / "services"
@@ -29,7 +29,7 @@ def main():
             else:
 
                 #Le KNN n'as pas compris
-                print("Laissez-moi reflechir deux secondes...")
+                jouer_audio_aleatoire("filler")
                 
                 if ask_jarvis:
                      
@@ -41,6 +41,7 @@ def main():
                           print(f"Jarvis: {reponse_jarvis}")
 
                 else: 
+                     jouer_audio_aleatoire("confused")
                      print("Désolé, je ne connais pas la reponse à votre question.")
                      
         except KeyboardInterrupt:

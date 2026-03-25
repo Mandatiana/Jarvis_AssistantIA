@@ -16,6 +16,12 @@ METTRE SON, play_song
 ECOUTER CHANSON, play_song
 METTRE MORCEAU, play_song
 JOUER ARTISTE, play_song
+JOUE MUSIQUE, play_song
+JOUER MUSIQUE, play_song
+JOUER SON, play_song
+JOUER MORCEAU, play_song
+JOUE SON, play_song
+JOUER CHANSON, play_song
 ECOUTER MUSIQUE, play_song
 LANCER PLAYLIST, play_song
 DONNER HEURE, play_song
