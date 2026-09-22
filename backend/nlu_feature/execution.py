@@ -4,6 +4,7 @@ from nlu_feature.gerer_contact import charger_contact
 from nlu_feature.mail_service import envoyer_mail
 from nlu_feature.audio_service import jouer_audio_aleatoire
 from .shazam import lancer_shazam
+import os
 
 def executer_commande(prediction, phrase_user):
     if prediction == "ouvrir_chrome":
@@ -72,6 +73,9 @@ def executer_commande(prediction, phrase_user):
 
     if prediction == "identifier_chanson": 
          lancer_shazam()
+
+    if prediction == "mise_en_veille_pc":
+        os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
     
     elif prediction == "presentation_jarvis":
         jouer_audio_aleatoire("intro", "intro 1.wav")
