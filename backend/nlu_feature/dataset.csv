@@ -48,3 +48,18 @@ LANCER SHAZAM,identifier_chanson
 QUI CHANTE CETTE CHANSON,identifier_chanson
 COMMENT S APPELLE CETTE CHANSON,identifier_chanson
 J ECOUTE QUOI EN CE MOMENT,identifier_chanson
+METS LE PC EN VEILLE,mise_en_veille_pc
+METTRE EN VEILLE LE PC,mise_en_veille_pc
+METS L ORDINATEUR EN VEILLE,mise_en_veille_pc
+METTRE L ORDINATEUR EN VEILLE,mise_en_veille_pc
+METS L ORDI EN VEILLE,mise_en_veille_pc
+METTRE L ORDI EN VEILLE,mise_en_veille_pc
+METS EN VEILLE,mise_en_veille_pc
+METTRE EN VEILLE,mise_en_veille_pc
+PASSE EN MODE VEILLE,mise_en_veille_pc
+PASSER EN MODE VEILLE,mise_en_veille_pc
+ACTIVE LA VEILLE,mise_en_veille_pc
+ACTIVER LA VEILLE,mise_en_veille_pc
+METS LE PC EN SOMMEIL,mise_en_veille_pc
+METS L ORDINATEUR EN SOMMEIL,mise_en_veille_pc
+VERROUILLE ET METS EN VEILLE,mise_en_veille_pc
